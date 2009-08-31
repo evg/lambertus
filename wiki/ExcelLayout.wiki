@@ -1,0 +1,25 @@
+#summary Describes contents of Excel worksheet
+
+Layout
+
+|| 1||id             || 0         ||
+|| 2||plaats         || A-1-01-01 ||
+|| 3||verlengen	 || T         ||
+|| 4||               || 2014      ||	
+|| 5||corrnaam	 || Hr. van Zandvoort ||
+|| 6||straat	 || Spirealaan 47 ||
+|| 7||postcode	 || 5582 BZ   ||
+|| 8||woonplaats	 || Waalre    ||
+|| 9||telefoon	 || 04904-12345 ||
+||10||byzonderh	 || plaatsingsrechten fa. Hanique ||	
+||11||               ||           ||
+||12||               || Roxen Maria H. ||	
+||13||overldatum	 || 3/15/1993 ||
+||14||overl_plaats	 || Onbekend  ||
+||15||gebdatum	 || NULL      ||
+||16||geb_plaats	 || Onbekend  ||
+||17||factuurnr	 || 96007     ||
+||18||byzonderh_overl||steenhouwer Hanique ||
+
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																													
+Correspondent voor meerdere overledenen heeft identieke gegevens in kolommen 1 tm 10.
