@@ -1,0 +1,5 @@
+26/8/2009
+
+Twee spikes kosten ongeveer een half uurtje! Veel sneller dan verwacht.
+1. Excel bestand lezen vanuit Java (via voorbeeld gevonden met Google)
+2. PDF maken obv stukje tekst (via xprogramming iText)
