@@ -3,19 +3,15 @@ package nl.evg.gui;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import nl.evg.business.PdfDocWriter;
 import nl.evg.business.PdfDocWriter;
 
 public class MainFrame extends JFrame
@@ -67,7 +63,7 @@ public class MainFrame extends JFrame
 		{
 			PdfDocWriter writer = new PdfDocWriter();
 			setCursor(new Cursor(Cursor.WAIT_CURSOR));
-			writer.write(nofDoc, text, outputDir);
+			writer.write(nofDoc, text);
 		} 
 		catch (Exception ioe)
 		{
