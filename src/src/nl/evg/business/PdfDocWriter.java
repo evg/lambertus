@@ -2,10 +2,9 @@ package nl.evg.business;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 
 import javax.jnlp.FileContents;
@@ -47,47 +46,10 @@ public class PdfDocWriter
 		}
 		catch(UnavailableServiceException e)
 		{
-			PrintWriter writer = new PrintWriter(new FileWriter("lambertus.pdf"));
-			for(int i=0; i<nofDoc; i++)
-				writer.println(text);
-			writer.flush();
-			writer.close();
+			FileOutputStream fileOutputStream = new FileOutputStream("/home/edwin/lambertus.pdf");
+			fileOutputStream.write(bytes);
+			fileOutputStream.flush();
+			fileOutputStream.close();
 		}
-
 	}
-
 }
-
-//private void writeTxtDocument(int nofDoc, String text, String outputDir)
-//{
-//	Cursor oldCursor = getCursor();
-//	try
-//	{
-//		setCursor(new Cursor(Cursor.WAIT_CURSOR));
-//		String result = "";
-//		for(int i=0; i<nofDoc; i++)
-//			result += (text+"\n");
-//		InputStream stream = new ByteArrayInputStream(result.getBytes());
-//		try
-//		{
-//			FileSaveService saveService = (FileSaveService)ServiceManager.lookup("javax.jnlp.FileSaveService");
-//			FileContents fileContents = saveService.saveFileDialog("c:\\temp", new String[]{"txt"}, stream, "lambertus");
-//		}
-//		catch(UnavailableServiceException e)
-//		{
-//			PrintWriter writer = new PrintWriter(new FileWriter(outputDir+File.separator+"lambertus.txt"));
-//			for(int i=0; i<nofDoc; i++)
-//				writer.println(text);
-//			writer.flush();
-//			writer.close();
-//		}
-//	} 
-//	catch (Exception ioe)
-//	{
-//		textArea.setText(getText(ioe));
-//	}
-//	finally
-//	{
-//		setCursor(oldCursor);
-//	}
-//}

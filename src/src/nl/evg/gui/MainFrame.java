@@ -31,7 +31,6 @@ public class MainFrame extends JFrame
 	{
 		super(title);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		outputDirText = new JTextField("c:\\temp\\");
 		JScrollPane scrollPane = new JScrollPane();
 		textArea = new JTextArea();
 		textArea.setPreferredSize(new Dimension(400, 300));
@@ -44,19 +43,17 @@ public class MainFrame extends JFrame
 			public void actionPerformed(ActionEvent arg0)
 			{
 				String text = textArea.getText();
-				String outputDir = outputDirText.getText();
-				writePdfDocument(3, text, outputDir);
+				writePdfDocument(3, text);
 			}
 
 		});
-		getContentPane().add(textArea, BorderLayout.NORTH);
-		getContentPane().add(outputDirText, BorderLayout.CENTER);
+		getContentPane().add(textArea, BorderLayout.CENTER);
 		getContentPane().add(startButton, BorderLayout.SOUTH);
 		pack();
 		setVisible(true);
 	}
 
-	private void writePdfDocument(int nofDoc, String text, String outputDir)
+	private void writePdfDocument(int nofDoc, String text)
 	{
 		Cursor oldCursor = getCursor();
 		try
@@ -75,8 +72,5 @@ public class MainFrame extends JFrame
 	}
 
 	private JTextArea textArea;
-
 	private JButton startButton;
-
-	private JTextField outputDirText;
 }
