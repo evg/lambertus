@@ -3,15 +3,27 @@ package nl.evg.gui;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
+import javax.jnlp.FileContents;
+import javax.jnlp.FileOpenService;
+import javax.jnlp.FileSaveService;
+import javax.jnlp.ServiceManager;
+import javax.jnlp.UnavailableServiceException;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
+import nl.evg.business.PageCreator;
 import nl.evg.business.PdfDocWriter;
 
 public class MainFrame extends JFrame
@@ -47,11 +59,25 @@ public class MainFrame extends JFrame
 			}
 
 		});
+		openExcelButton = new JButton("Lees Excel bestand");
+		openExcelButton.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0)
+			{
+				InputStream inputStream = openExcel();
+				String[] pages = new PageCreator().createPagesFrom(inputStream);
+				for(String page: pages)
+					writePdfDocument(1, page);
+			}
+
+		});
 		getContentPane().add(textArea, BorderLayout.CENTER);
 		getContentPane().add(startButton, BorderLayout.SOUTH);
+		getContentPane().add(openExcelButton, BorderLayout.NORTH);
 		pack();
 		setVisible(true);
 	}
+
 
 	private void writePdfDocument(int nofDoc, String text)
 	{
@@ -71,6 +97,31 @@ public class MainFrame extends JFrame
 		}
 	}
 
+	private InputStream openExcel()
+	{
+		try
+		{
+			FileOpenService openService = (FileOpenService)ServiceManager.lookup("javax.jnlp.FileOpenService");
+			FileContents contents = openService.openFileDialog("c:\\", new String[]{"xls"});
+			return contents.getInputStream();
+		}
+		catch(Exception e)
+		{
+			JFileChooser fileChooser = new JFileChooser();
+			fileChooser.showOpenDialog(this);
+			File file = fileChooser.getSelectedFile();
+			try
+			{
+				return new FileInputStream(file);
+			}
+			catch(FileNotFoundException fnfe)
+			{
+				fnfe.printStackTrace();
+			}
+		}
+		return null;
+	}
 	private JTextArea textArea;
 	private JButton startButton;
+	private JButton openExcelButton;
 }
