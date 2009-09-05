@@ -1,8 +1,8 @@
 package nl.evg.business;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -12,15 +12,9 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 public class PageCreator
 {
-	public Page[] createPagesFrom(InputStream contentStream)
+	public List<Page> createPagesFrom(InputStream contentStream)
 	{
-		Page firstPage = new Page();
-		firstPage.add(getFirst2009correspondent(contentStream));
-		return new Page[] { firstPage };
-	}
-	
-	private String getFirst2009correspondent(InputStream contentStream) //throws IOException
-	{
+		List<Page> result = new ArrayList<Page>();
 		POIFSFileSystem fs = null;
 		HSSFWorkbook wb = null;
 		try
@@ -29,7 +23,10 @@ public class PageCreator
 			wb = new HSSFWorkbook(fs);
 		}
 		catch (Exception e) {
-			return e.getMessage();
+			Page page = new Page();
+			page.add(e.getMessage());
+			result.add(page);
+			return result;
 		}
 		HSSFSheet sheet = wb.getSheetAt(0);
 		HSSFRow row;
@@ -56,7 +53,11 @@ public class PageCreator
 			row = sheet.getRow(r);
 			if (row != null) {
 				if (is2009(row))
-					return getCorrespondent(row);
+				{
+					Page page = new Page();
+					page.add(getCorrespondent(row));
+					result.add(page);
+				}
 //				for (int c = 0; c < cols; c++) {
 //					cell = row.getCell(c);
 //					if (cell != null) {
@@ -66,7 +67,7 @@ public class PageCreator
 //				}
 			}
 		}
-		return "No corr found for 2009";
+		return result;
 	} 
 	
 	private boolean is2009(HSSFRow row)
