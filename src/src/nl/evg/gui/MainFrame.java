@@ -3,44 +3,44 @@ package nl.evg.gui;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FileDialog;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.util.List;
 
 import javax.jnlp.FileContents;
 import javax.jnlp.FileOpenService;
 import javax.jnlp.FileSaveService;
 import javax.jnlp.ServiceManager;
-import javax.jnlp.UnavailableServiceException;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.pdf.PdfWriter;
+import javax.swing.JTextField;
 
 import nl.evg.business.Page;
 import nl.evg.business.PageCreator;
 import nl.evg.business.PdfDoc;
 
+import com.lowagie.text.DocumentException;
+
 public class MainFrame extends JFrame
 {
-
 	public static void main(String[] args)
 	{
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run()
 			{
-				new MainFrame("Lambertus grafrechten verlenging");
+				new MainFrame("Lambertus brieven");
 			}
 		});
 	}
@@ -49,68 +49,94 @@ public class MainFrame extends JFrame
 	{
 		super(title);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JScrollPane scrollPane = new JScrollPane();
-		textArea = new JTextArea();
-		textArea.setPreferredSize(new Dimension(400, 300));
-		scrollPane.add(textArea);
-		scrollPane.setPreferredSize(new Dimension(400, 300));
-		textArea.setText("Deze tekst komt op iedere brief. Je kunt hem aanpassen.");
-		startButton = new JButton("Maak 3 brieven");
-		startButton.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent arg0)
-			{
-				String text = textArea.getText();
-//				writePdfDocument(3, text);
-			}
-
-		});
-		openExcelButton = new JButton("Lees Excel bestand");
-		openExcelButton.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent arg0)
-			{
-				InputStream inputStream = openExcel();
-				List<Page> pages = new PageCreator().createPagesFrom(inputStream);
-				try
-				{
-					PdfDoc doc = new PdfDoc();
-					for(Page page: pages)
-						doc.add(page);
-					doc.close();
-					doc.write();
-				} 
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-			}
-
-		});
-		getContentPane().add(textArea, BorderLayout.CENTER);
-		getContentPane().add(startButton, BorderLayout.SOUTH);
-		getContentPane().add(openExcelButton, BorderLayout.NORTH);
+		mainPanel = new JTabbedPane();
+		mainPanel.setPreferredSize(new Dimension(400,300));
+		mainPanel.add("Excel bestand",getExcelPanel());
+		mainPanel.add("Jaar",getSelectYearPanel());
+		mainPanel.add("Brief definitie",getLetterPanel());
+		mainPanel.add("Samenvoegen", getMergePanel());
+		mainPanel.add("Pdf bestand",getSavePanel());
+		getContentPane().add(mainPanel, BorderLayout.CENTER);
+		getContentPane().add(getWizardButtonsPanel(), BorderLayout.SOUTH);
 		pack();
 		setVisible(true);
 	}
-
-
-	private void writePdfDocument()
+	
+	private JPanel getLetterPanel()
 	{
-		Cursor oldCursor = getCursor();
-		try
-		{
-			PdfDoc pdfDoc = new PdfDoc();
-			setCursor(new Cursor(Cursor.WAIT_CURSOR));
-			pdfDoc.write();
-		} 
-		catch (Exception ioe)
-		{
-		}
-		finally
-		{
-			setCursor(oldCursor);
-		}
+		JPanel result = new JPanel(new BorderLayout());
+		JPanel headerPanel = new JPanel(new BorderLayout());
+		JPanel bodyPanel = new JPanel(new BorderLayout());
+		
+		JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		titlePanel.add(new JTextField("STICHTING ST. LAMBERTUSGEMEENSCHAP"));
+		JTextArea leftHeaderTextArea = new JTextArea("Kerkhofadministratie:\nFinanciëleadministratie:");
+		JTextArea rightHeaderTextArea = new JTextArea("Busonilaan 8  5654 NP Eindhoven tel: 040-2517112\nPostbank    39 67 917\nRabobank  11 37 21 765\nt.n.v. Stichting St. Lambertusgemeenschap Rubinsteinlaan 25  5654 PC Eindhoven");
+		headerPanel.add(titlePanel, BorderLayout.NORTH);
+		headerPanel.add(leftHeaderTextArea, BorderLayout.WEST);
+		headerPanel.add(rightHeaderTextArea, BorderLayout.CENTER);
+		
+		bodyPanel.add(new JTextArea("Eindhoven,\n\n\n\nBetreft: Verlenging grafrechten vak $VAK\n\nZeer geachte mevrouw, mijnheer,"));
+		result.add(headerPanel, BorderLayout.NORTH);
+		result.add(bodyPanel, BorderLayout.CENTER);
+		return result;
+	}
+	
+	private JPanel getSelectYearPanel()
+	{
+		JPanel result = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		result.add(new JLabel("Jaar:"));
+		result.add(new JTextField("2009"));
+		return result;
+	}
+
+	private JPanel getWizardButtonsPanel()
+	{
+		JPanel result = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		result.add(prevButton = new JButton("Vorige"));
+		result.add(nextButton = new JButton("Volgende"));
+		result.add(new JButton("Sluiten"));
+		
+		prevButton.addActionListener(new ActionListener(){
+			
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				int selIndex = mainPanel.getSelectedIndex(); 
+				if (selIndex > 0)
+					mainPanel.setSelectedIndex(selIndex-1);
+			}
+			
+		});
+
+		nextButton.addActionListener(new ActionListener(){
+			
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				int selIndex = mainPanel.getSelectedIndex(); 
+				if (selIndex < mainPanel.getComponentCount()-1)
+					mainPanel.setSelectedIndex(selIndex+1);
+			}
+			
+		});
+	
+		return result;
+	}
+	
+	private JPanel getExcelPanel()
+	{
+		JPanel result = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JButton browseButton = new JButton("Browse...");
+		browseButton.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0)
+			{
+				excelInputStream = openExcel();
+			}
+
+		});
+		result.add(new JLabel("Excel bestand:"));
+		result.add(browseButton);
+		return result;
 	}
 
 	private InputStream openExcel()
@@ -137,7 +163,98 @@ public class MainFrame extends JFrame
 		}
 		return null;
 	}
-	private JTextArea textArea;
-	private JButton startButton;
-	private JButton openExcelButton;
+	
+	private JPanel getMergePanel()
+	{
+		JPanel result = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JButton mergeButton = new JButton("Start samenvoegen");
+		result.add(mergeButton);
+		
+		mergeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent arg0) {
+			
+			try
+			{
+				showWaitCursor();
+				merge();
+			} 
+			catch (DocumentException e)
+			{
+				e.printStackTrace();
+			}
+			finally
+			{
+				showNormalCursor();
+			}
+		
+		};});
+		
+		return result;
+	}
+	
+	private void merge() throws DocumentException
+	{
+		pdfDoc = new PdfDoc();
+		PageCreator creator = new PageCreator();
+		List<Page> pages = creator.createPagesFrom(excelInputStream);
+		for(Page page: pages)
+			pdfDoc.add(page);
+	}
+	
+	private void showWaitCursor()
+	{
+		setCursor(new Cursor(Cursor.WAIT_CURSOR));
+	}
+	
+	private void showNormalCursor()
+	{
+		setCursor(Cursor.getDefaultCursor());
+	}
+	
+	private JPanel getSavePanel()
+	{
+		JPanel result = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JButton browseButton = new JButton("Browse...");
+		browseButton.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0)
+			{
+				save();
+			}
+
+		});
+		result.add(new JLabel("Pdf bestand:"));
+		result.add(browseButton);
+		return result;
+	}
+	
+	private void save()
+	{
+		byte[] bytes = pdfDoc.asBytes();
+		InputStream stream = new ByteArrayInputStream(bytes);
+		try
+		{
+			FileSaveService saveService = (FileSaveService)ServiceManager.lookup("javax.jnlp.FileSaveService");
+			saveService.saveFileDialog("c:\\temp", new String[]{"pdf"}, stream, "lambertus");
+		}
+		catch(Exception e)
+		{
+			try
+			{
+				FileOutputStream fileOutputStream = new FileOutputStream("/home/edwin/lambertus.pdf");
+				fileOutputStream.write(bytes);
+				fileOutputStream.flush();
+				fileOutputStream.close();
+			} catch (Exception e1)
+			{
+				e1.printStackTrace();
+			}
+		}
+	}
+	
+	private InputStream excelInputStream;
+	private JTabbedPane mainPanel;
+	private JButton prevButton;
+	private JButton nextButton;
+	private PdfDoc pdfDoc;
+	
 }
