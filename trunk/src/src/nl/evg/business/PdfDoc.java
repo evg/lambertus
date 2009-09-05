@@ -37,32 +37,37 @@ public class PdfDoc
 		document.add(Chunk.NEXTPAGE);
 	}
 	
-	public void close()
+//	public void close()
+//	{
+//		document.close();
+//		isClosed = true;
+//	}
+	
+	public byte[] asBytes()
 	{
 		document.close();
-		isClosed = true;
+		return outputStream.toByteArray();
 	}
-	
-	public void write() throws DocumentException, MalformedURLException, IOException
-	{
-		if (!isClosed)
-			throw new IllegalStateException("PdfDoc should be closed before it is written");
-		
-		byte[] bytes = outputStream.toByteArray();
-		InputStream stream = new ByteArrayInputStream(bytes);
-		try
-		{
-			FileSaveService saveService = (FileSaveService)ServiceManager.lookup("javax.jnlp.FileSaveService");
-			saveService.saveFileDialog("c:\\temp", new String[]{"pdf"}, stream, "lambertus");
-		}
-		catch(UnavailableServiceException e)
-		{
-			FileOutputStream fileOutputStream = new FileOutputStream("/home/edwin/lambertus.pdf");
-			fileOutputStream.write(bytes);
-			fileOutputStream.flush();
-			fileOutputStream.close();
-		}
-	}
+//	public void write() throws DocumentException, MalformedURLException, IOException
+//	{
+//		if (!isClosed)
+//			throw new IllegalStateException("PdfDoc should be closed before it is written");
+//		
+//		byte[] bytes = outputStream.toByteArray();
+//		InputStream stream = new ByteArrayInputStream(bytes);
+//		try
+//		{
+//			FileSaveService saveService = (FileSaveService)ServiceManager.lookup("javax.jnlp.FileSaveService");
+//			saveService.saveFileDialog("c:\\temp", new String[]{"pdf"}, stream, "lambertus");
+//		}
+//		catch(UnavailableServiceException e)
+//		{
+//			FileOutputStream fileOutputStream = new FileOutputStream("/home/edwin/lambertus.pdf");
+//			fileOutputStream.write(bytes);
+//			fileOutputStream.flush();
+//			fileOutputStream.close();
+//		}
+//	}
 
 	private boolean isClosed = false;
 	private Document document;
