@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.List;
 
 import javax.jnlp.FileContents;
 import javax.jnlp.FileOpenService;
@@ -70,7 +71,7 @@ public class MainFrame extends JFrame
 			public void actionPerformed(ActionEvent arg0)
 			{
 				InputStream inputStream = openExcel();
-				Page[] pages = new PageCreator().createPagesFrom(inputStream);
+				List<Page> pages = new PageCreator().createPagesFrom(inputStream);
 				try
 				{
 					PdfDoc doc = new PdfDoc();
