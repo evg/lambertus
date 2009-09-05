@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 
 import javax.jnlp.FileContents;
 import javax.jnlp.FileOpenService;
@@ -23,8 +24,12 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.pdf.PdfWriter;
+
+import nl.evg.business.Page;
 import nl.evg.business.PageCreator;
-import nl.evg.business.PdfDocWriter;
+import nl.evg.business.PdfDoc;
 
 public class MainFrame extends JFrame
 {
@@ -55,7 +60,7 @@ public class MainFrame extends JFrame
 			public void actionPerformed(ActionEvent arg0)
 			{
 				String text = textArea.getText();
-				writePdfDocument(3, text);
+//				writePdfDocument(3, text);
 			}
 
 		});
@@ -65,9 +70,19 @@ public class MainFrame extends JFrame
 			public void actionPerformed(ActionEvent arg0)
 			{
 				InputStream inputStream = openExcel();
-				String[] pages = new PageCreator().createPagesFrom(inputStream);
-				for(String page: pages)
-					writePdfDocument(1, page);
+				Page[] pages = new PageCreator().createPagesFrom(inputStream);
+				try
+				{
+					PdfDoc doc = new PdfDoc();
+					for(Page page: pages)
+						doc.add(page);
+					doc.close();
+					doc.write();
+				} 
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
 			}
 
 		});
@@ -79,14 +94,14 @@ public class MainFrame extends JFrame
 	}
 
 
-	private void writePdfDocument(int nofDoc, String text)
+	private void writePdfDocument()
 	{
 		Cursor oldCursor = getCursor();
 		try
 		{
-			PdfDocWriter writer = new PdfDocWriter();
+			PdfDoc pdfDoc = new PdfDoc();
 			setCursor(new Cursor(Cursor.WAIT_CURSOR));
-			writer.write(nofDoc, text);
+			pdfDoc.write();
 		} 
 		catch (Exception ioe)
 		{

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 
-import javax.jnlp.FileContents;
 import javax.jnlp.FileSaveService;
 import javax.jnlp.ServiceManager;
 import javax.jnlp.UnavailableServiceException;
@@ -20,29 +19,41 @@ import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
 
-public class PdfDocWriter
+public class PdfDoc
 {
-	public void write(int nofDoc, String text) throws DocumentException, MalformedURLException, IOException
+	public PdfDoc() throws DocumentException
 	{
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		Document document = new Document(PageSize.A4, 50, 50, 50, 50);
+		outputStream = new ByteArrayOutputStream();
+		document = new Document(PageSize.A4, 50, 50, 50, 50);
 		PdfWriter.getInstance(document, outputStream);
 		document.open();
-		Paragraph para = new Paragraph(text);
+	}
+	
+	public void add(Page page) throws DocumentException
+	{
+		Paragraph para = new Paragraph(page.getText());
 		para.setAlignment(Element.ALIGN_LEFT);
-		for (int i = 0; i < nofDoc; i++)
-		{
-			document.add(para);
-			document.add(Chunk.NEXTPAGE);
-		}
+		document.add(para);
+		document.add(Chunk.NEXTPAGE);
+	}
+	
+	public void close()
+	{
 		document.close();
+		isClosed = true;
+	}
+	
+	public void write() throws DocumentException, MalformedURLException, IOException
+	{
+		if (!isClosed)
+			throw new IllegalStateException("PdfDoc should be closed before it is written");
 		
 		byte[] bytes = outputStream.toByteArray();
 		InputStream stream = new ByteArrayInputStream(bytes);
 		try
 		{
 			FileSaveService saveService = (FileSaveService)ServiceManager.lookup("javax.jnlp.FileSaveService");
-			FileContents fileContents = saveService.saveFileDialog("c:\\temp", new String[]{"pdf"}, stream, "lambertus");
+			saveService.saveFileDialog("c:\\temp", new String[]{"pdf"}, stream, "lambertus");
 		}
 		catch(UnavailableServiceException e)
 		{
@@ -52,4 +63,8 @@ public class PdfDocWriter
 			fileOutputStream.close();
 		}
 	}
+
+	private boolean isClosed = false;
+	private Document document;
+	private ByteArrayOutputStream outputStream;
 }

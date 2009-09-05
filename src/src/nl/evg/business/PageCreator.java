@@ -12,9 +12,11 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 public class PageCreator
 {
-	public String[] createPagesFrom(InputStream contentStream)
+	public Page[] createPagesFrom(InputStream contentStream)
 	{
-		return new String[] {getFirst2009correspondent(contentStream)};
+		Page firstPage = new Page();
+		firstPage.add(getFirst2009correspondent(contentStream));
+		return new Page[] { firstPage };
 	}
 	
 	private String getFirst2009correspondent(InputStream contentStream) //throws IOException
