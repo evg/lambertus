@@ -1,9 +1,12 @@
 package nl.evg.business;
 
+import static nl.evg.business.PageVarName.CORRNAME;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.poi.hssf.record.formula.functions.Correl;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -12,9 +15,9 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 public class PageCreator
 {
-	public List<Page> createPagesFrom(InputStream contentStream)
+	public List<PageVars> createPagesFrom(InputStream contentStream)
 	{
-		List<Page> result = new ArrayList<Page>();
+		List<PageVars> result = new ArrayList<PageVars>();
 		POIFSFileSystem fs = null;
 		HSSFWorkbook wb = null;
 		try
@@ -23,10 +26,7 @@ public class PageCreator
 			wb = new HSSFWorkbook(fs);
 		}
 		catch (Exception e) {
-			Page page = new Page();
-			page.add(e.getMessage());
-			result.add(page);
-			return result;
+			e.printStackTrace();
 		}
 		HSSFSheet sheet = wb.getSheetAt(0);
 		HSSFRow row;
@@ -54,9 +54,9 @@ public class PageCreator
 			if (row != null) {
 				if (is2009(row))
 				{
-					Page page = new Page();
-					page.add(getCorrespondent(row));
-					result.add(page);
+					PageVars pageVars = new PageVars();
+					pageVars.set(CORRNAME, getCorrespondent(row));
+					result.add(pageVars);
 				}
 //				for (int c = 0; c < cols; c++) {
 //					cell = row.getCell(c);
