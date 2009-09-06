@@ -77,7 +77,7 @@ public class MainFrame extends JFrame
 		headerPanel.add(leftHeaderTextArea, BorderLayout.WEST);
 		headerPanel.add(rightHeaderTextArea, BorderLayout.CENTER);
 		
-		bodyPanel.add(bodyTextArea = new JTextArea("Eindhoven,\n\n\n\nBetreft: Verlenging grafrechten vak $VAK\n\nZeer geachte mevrouw, mijnheer,"));
+		bodyPanel.add(bodyTextArea = new JTextArea("Eindhoven,\n\n\n             CORRNAAM\nBetreft: Verlenging grafrechten vak PLAATS\n\nZeer geachte mevrouw, mijnheer,"));
 		result.add(headerPanel, BorderLayout.NORTH);
 		result.add(bodyPanel, BorderLayout.CENTER);
 		return result;

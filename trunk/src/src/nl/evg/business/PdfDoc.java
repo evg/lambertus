@@ -65,11 +65,26 @@ public class PdfDoc
 	
 	private void addBody(PageVars pageVars) throws DocumentException
 	{
-		Paragraph para = new Paragraph(pageTemplate.body, bodyFont);
+		String mergedText = merge(pageTemplate.body, pageVars);
+		Paragraph para = new Paragraph(mergedText, bodyFont);
 		para.setAlignment(Element.ALIGN_LEFT);
 		document.add(para);
 		
 		document.add(Chunk.NEXTPAGE);
+	}
+	
+	private String merge(String text, PageVars pageVars)
+	{
+		String result = new String(text);
+		for(PageVarName name: PageVarName.values())
+		{
+			String key = name.key;
+			String value = pageVars.get(name);
+			if (value==null)
+				continue;
+			result = result.replaceAll(key, value);
+		}
+		return result;
 	}
 	
 	private Font titleFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD, Color.BLACK); 
