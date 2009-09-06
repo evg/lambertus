@@ -27,7 +27,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import nl.evg.business.Page;
+import nl.evg.business.PageTemplate;
+import nl.evg.business.PageVars;
 import nl.evg.business.PageCreator;
 import nl.evg.business.PdfDoc;
 
@@ -69,18 +70,24 @@ public class MainFrame extends JFrame
 		JPanel bodyPanel = new JPanel(new BorderLayout());
 		
 		JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		titlePanel.add(new JTextField("STICHTING ST. LAMBERTUSGEMEENSCHAP"));
-		JTextArea leftHeaderTextArea = new JTextArea("Kerkhofadministratie:\nFinanciëleadministratie:");
-		JTextArea rightHeaderTextArea = new JTextArea("Busonilaan 8  5654 NP Eindhoven tel: 040-2517112\nPostbank    39 67 917\nRabobank  11 37 21 765\nt.n.v. Stichting St. Lambertusgemeenschap Rubinsteinlaan 25  5654 PC Eindhoven");
+		titlePanel.add(titleField = new JTextField("STICHTING ST. LAMBERTUSGEMEENSCHAP"));
+		leftHeaderTextArea = new JTextArea("Kerkhofadministratie:\nFinanciëleadministratie:");
+		rightHeaderTextArea = new JTextArea("Busonilaan 8  5654 NP Eindhoven tel: 040-2517112\nPostbank    39 67 917\nRabobank  11 37 21 765\nt.n.v. Stichting St. Lambertusgemeenschap Rubinsteinlaan 25  5654 PC Eindhoven");
 		headerPanel.add(titlePanel, BorderLayout.NORTH);
 		headerPanel.add(leftHeaderTextArea, BorderLayout.WEST);
 		headerPanel.add(rightHeaderTextArea, BorderLayout.CENTER);
 		
-		bodyPanel.add(new JTextArea("Eindhoven,\n\n\n\nBetreft: Verlenging grafrechten vak $VAK\n\nZeer geachte mevrouw, mijnheer,"));
+		bodyPanel.add(bodyTextArea = new JTextArea("Eindhoven,\n\n\n\nBetreft: Verlenging grafrechten vak $VAK\n\nZeer geachte mevrouw, mijnheer,"));
 		result.add(headerPanel, BorderLayout.NORTH);
 		result.add(bodyPanel, BorderLayout.CENTER);
 		return result;
 	}
+	
+	private JTextField titleField;
+	private JTextArea leftHeaderTextArea;
+	private JTextArea rightHeaderTextArea;
+	private JTextArea bodyTextArea;
+	
 	
 	private JPanel getSelectYearPanel()
 	{
@@ -193,11 +200,16 @@ public class MainFrame extends JFrame
 	
 	private void merge() throws DocumentException
 	{
-		pdfDoc = new PdfDoc();
+		PageTemplate pageTemplate = new PageTemplate();
+		pageTemplate.title = titleField.getText();
+		pageTemplate.headerLeft = leftHeaderTextArea.getText();
+		pageTemplate.headerRight = rightHeaderTextArea.getText();
+		pageTemplate.body = bodyTextArea.getText();
+		pdfDoc = new PdfDoc(pageTemplate);
 		PageCreator creator = new PageCreator();
-		List<Page> pages = creator.createPagesFrom(excelInputStream);
-		for(Page page: pages)
-			pdfDoc.add(page);
+		List<PageVars> pageVarList = creator.createPagesFrom(excelInputStream);
+		for(PageVars pageVars: pageVarList)
+			pdfDoc.addPageFor(pageVars);
 	}
 	
 	private void showWaitCursor()
