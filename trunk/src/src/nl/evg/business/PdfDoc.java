@@ -78,7 +78,7 @@ public class PdfDoc
 		String result = new String(text);
 		for(PageVarName name: PageVarName.values())
 		{
-			String key = name.key;
+			String key = name.toString();
 			String value = pageVars.get(name);
 			if (value==null)
 				continue;
@@ -89,7 +89,7 @@ public class PdfDoc
 	
 	private Font titleFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD, Color.BLACK); 
 	private Font headerFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, Font.NORMAL, Color.BLACK); 
-	private Font bodyFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 12, Font.NORMAL, Color.BLACK); 
+	private Font bodyFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 11, Font.NORMAL, Color.BLACK); 
 	
 
 	private PageTemplate pageTemplate;

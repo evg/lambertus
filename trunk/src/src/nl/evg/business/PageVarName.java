@@ -2,14 +2,25 @@ package nl.evg.business;
 
 public enum PageVarName
 {
-	CORRNAME("CORRNAAM"),
-	STREET("STRAAT");
+	ID(0),
+	VAK(1),
+	VERLENGEN(2),
+	JAAR(3),
+	CORRNAAM(4),
+	STRAAT(5),
+	POSTCODE(6),
+	WOONPLAATS(7),
+	OVERLEDENE(11),
+	OVERLDATUM(12),
+	OVERL_PLAATS(13),
+	GEBDATUM(14),
+	GEB_PLAATS(15),
+	FACTUURNR(16);
 	
-	PageVarName(String key)
+	PageVarName(int index)
 	{
-		this.key = key;
+		this.index = index;
 	}
 	
-	public final String key;
-	
+	public final int index;
 }
