@@ -1,12 +1,9 @@
 package nl.evg.business;
 
-import static nl.evg.business.PageVarName.CORRNAME;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.hssf.record.formula.functions.Correl;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -52,33 +49,32 @@ public class PageCreator
 		for (int r = 0; r < rows; r++) {
 			row = sheet.getRow(r);
 			if (row != null) {
-				if (is2009(row))
+				if (is2009(row))//TODO select right year
 				{
 					PageVars pageVars = new PageVars();
-					pageVars.set(CORRNAME, getCorrespondent(row));
+					fill(pageVars,row);
 					result.add(pageVars);
 				}
-//				for (int c = 0; c < cols; c++) {
-//					cell = row.getCell(c);
-//					if (cell != null) {
-//						// Your code here
-//						System.out.println("row:"+r+" col:"+c+":"+cell);
-//					}
-//				}
 			}
 		}
 		return result;
 	} 
 	
+	private void fill(PageVars pageVars, HSSFRow row)
+	{
+		for(PageVarName name: PageVarName.values())
+		{
+			HSSFCell cell = row.getCell(name.index);
+			if (cell==null)
+				continue;
+			String value = cell.toString();
+			pageVars.set(name, value);
+		}
+	}
+	
 	private boolean is2009(HSSFRow row)
 	{
 		HSSFCell cell = row.getCell(3);
 		return cell!=null && cell.toString().equals("2009.0");
-	}
-
-	private String getCorrespondent(HSSFRow row)
-	{
-		HSSFCell cell = row.getCell(4);
-		return cell.toString();
 	}
 }
