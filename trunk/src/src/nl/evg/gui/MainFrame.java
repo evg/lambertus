@@ -99,13 +99,14 @@ public class MainFrame extends JFrame
 		bodyPanel.add(scrollPane);
 		result.add(headerPanel, BorderLayout.NORTH);
 		result.add(bodyPanel, BorderLayout.CENTER);
+		result.add(new JLabel("file.encoding: "+System.getProperty("file.encoding")),BorderLayout.SOUTH);
 		return result;
 	}
 	
 	private void fill(JTextArea textArea, String resource) throws IOException
 	{
 		InputStream inputStream = this.getClass().getResourceAsStream("body.txt");
-		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF8"));
 		String line = reader.readLine();
 		while (line!=null)
 		{
@@ -114,17 +115,12 @@ public class MainFrame extends JFrame
 			line = reader.readLine();
 		}
 	}
-	private JTextField titleField;
-	private JTextArea leftHeaderTextArea;
-	private JTextArea rightHeaderTextArea;
-	private JTextArea bodyTextArea;
-	
 	
 	private JPanel getSelectYearPanel()
 	{
 		JPanel result = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		result.add(new JLabel("Jaar:"));
-		result.add(new JTextField("2009"));
+		result.add(yearField = new JTextField("2009"));
 		return result;
 	}
 
@@ -236,9 +232,10 @@ public class MainFrame extends JFrame
 		pageTemplate.headerLeft = leftHeaderTextArea.getText();
 		pageTemplate.headerRight = rightHeaderTextArea.getText();
 		pageTemplate.body = bodyTextArea.getText();
+		String year = yearField.getText();
 		pdfDoc = new PdfDoc(pageTemplate);
 		PageCreator creator = new PageCreator();
-		List<PageVars> pageVarList = creator.createPagesFrom(excelInputStream);
+		List<PageVars> pageVarList = creator.createPagesFrom(excelInputStream, year);
 		for(PageVars pageVars: pageVarList)
 			pdfDoc.addPageFor(pageVars);
 	}
@@ -293,7 +290,12 @@ public class MainFrame extends JFrame
 			}
 		}
 	}
-	
+
+	private JTextField yearField;
+	private JTextField titleField;
+	private JTextArea leftHeaderTextArea;
+	private JTextArea rightHeaderTextArea;
+	private JTextArea bodyTextArea;
 	private InputStream excelInputStream;
 	private JTabbedPane mainPanel;
 	private JButton prevButton;
