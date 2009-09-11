@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,7 +16,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.jnlp.FileContents;
@@ -82,30 +87,87 @@ public class MainFrame extends JFrame
 		JPanel result = new JPanel(new BorderLayout());
 		JPanel headerPanel = new JPanel(new BorderLayout());
 		JPanel bodyPanel = new JPanel(new BorderLayout());
+		JPanel saveLoadPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		
 		JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		titlePanel.add(titleField = new JTextField("STICHTING ST. LAMBERTUSGEMEENSCHAP"));
-		leftHeaderTextArea = new JTextArea("\n\nKerkhofadministratie:\nFinanciëleadministratie:");
-		rightHeaderTextArea = new JTextArea("\n\nBusonilaan 8  5654 NP Eindhoven tel: 040-2517112\nPostbank    39 67 917\nRabobank  11 37 21 765\nt.n.v. Stichting St. Lambertusgemeenschap Rubinsteinlaan 25  5654 PC Eindhoven");
+		titlePanel.add(titleField = new JTextField());
+		fill(titleField,"title.txt");
+		leftHeaderTextArea = new JTextArea();
+		rightHeaderTextArea = new JTextArea();
+		fill(leftHeaderTextArea,"leftHeader.txt");
+		fill(rightHeaderTextArea,"rightHeader.txt");
 		headerPanel.add(titlePanel, BorderLayout.NORTH);
 		headerPanel.add(leftHeaderTextArea, BorderLayout.WEST);
 		headerPanel.add(rightHeaderTextArea, BorderLayout.CENTER);
+		
 		bodyTextArea = new JTextArea();
 		bodyTextArea.setLineWrap(true);
 		bodyTextArea.setWrapStyleWord(true);
 		fill(bodyTextArea,"body.txt");
 		JScrollPane scrollPane = new JScrollPane(bodyTextArea);
-
 		bodyPanel.add(scrollPane);
+		
+		JButton saveButton = new JButton("Opslaan...");
+		JButton loadButton = new JButton("Openen...");
+		saveButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
+				try
+				{
+					saveLetterDefinition();
+				}
+				catch(UnsupportedEncodingException uee)
+				{
+					//TODO inform user
+				}
+			}
+		});
+		loadButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
+				loadLetterDefinition();
+			}
+		});
+		saveLoadPanel.add(saveButton);
+		saveLoadPanel.add(loadButton);
+		
 		result.add(headerPanel, BorderLayout.NORTH);
 		result.add(bodyPanel, BorderLayout.CENTER);
-		result.add(new JLabel("file.encoding: "+System.getProperty("file.encoding")),BorderLayout.SOUTH);
+		result.add(saveLoadPanel, BorderLayout.SOUTH);
 		return result;
 	}
 	
-	private void fill(JTextArea textArea, String resource) throws IOException
+	private void saveLetterDefinition() throws UnsupportedEncodingException
 	{
-		InputStream inputStream = this.getClass().getResourceAsStream("body.txt");
+		save("letterdef.txt",getLetterDef());
+	}
+	
+	private byte[] getLetterDef() throws UnsupportedEncodingException
+	{
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		PrintWriter writer = new PrintWriter(new OutputStreamWriter(stream, "UTF8"));
+		writer.println(titleField.getText());
+		writer.println(SEPARATOR);
+		writer.println(leftHeaderTextArea.getText());
+		writer.println(SEPARATOR);
+		writer.println(rightHeaderTextArea.getText());
+		writer.println(SEPARATOR);
+		writer.println(bodyTextArea.getText());
+		writer.flush();
+		writer.close();
+		return stream.toByteArray();
+	}
+	
+	private static final String SEPARATOR = "~ ~ ~";
+	
+	private void loadLetterDefinition()
+	{
+//		TODO load
+	}
+	
+	private void fill(JTextArea textArea, String file) throws IOException
+	{
+		InputStream inputStream = this.getClass().getResourceAsStream(file);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF8"));
 		String line = reader.readLine();
 		while (line!=null)
@@ -114,6 +176,20 @@ public class MainFrame extends JFrame
 			textArea.append("\n");
 			line = reader.readLine();
 		}
+		reader.close();
+	}
+
+	//TODO refactor overloaded method
+	private void fill(JTextField textField, String file) throws IOException
+	{
+		InputStream inputStream = this.getClass().getResourceAsStream(file);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF8"));
+		String line = reader.readLine();
+		if (line!=null)
+		{
+			textField.setText(line);
+		}
+		reader.close();
 	}
 	
 	private JPanel getSelectYearPanel()
@@ -258,7 +334,7 @@ public class MainFrame extends JFrame
 
 			public void actionPerformed(ActionEvent arg0)
 			{
-				save();
+				save("lambertus.pdf",pdfDoc.asBytes());
 			}
 
 		});
@@ -267,20 +343,19 @@ public class MainFrame extends JFrame
 		return result;
 	}
 	
-	private void save()
+	private void save(String defaultName, byte[] bytes)
 	{
-		byte[] bytes = pdfDoc.asBytes();
 		InputStream stream = new ByteArrayInputStream(bytes);
 		try
 		{
 			FileSaveService saveService = (FileSaveService)ServiceManager.lookup("javax.jnlp.FileSaveService");
-			saveService.saveFileDialog("c:\\temp", new String[]{"pdf"}, stream, "lambertus");
+			saveService.saveFileDialog("", new String[]{}, stream, "");
 		}
 		catch(Exception e)
 		{
 			try
 			{
-				FileOutputStream fileOutputStream = new FileOutputStream("/home/edwin/lambertus.pdf");
+				FileOutputStream fileOutputStream = new FileOutputStream("/home/edwin/"+defaultName);
 				fileOutputStream.write(bytes);
 				fileOutputStream.flush();
 				fileOutputStream.close();
