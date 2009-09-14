@@ -1,7 +1,10 @@
 package nl.evg.business;
 
 import java.awt.Color;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
 
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
@@ -26,7 +29,7 @@ public class PdfDoc
 		this.pageTemplate = pageTemplate;
 	}
 	
-	public void addPageFor(PageVars pageVars) throws DocumentException
+	public void addPageFor(PageVars pageVars) throws Exception
 	{
 		addTitle();
 		addHeader();
@@ -63,14 +66,29 @@ public class PdfDoc
 		return cell;
 	}
 	
-	private void addBody(PageVars pageVars) throws DocumentException
+	private void addBody(PageVars pageVars) throws Exception
 	{
 		String mergedText = merge(pageTemplate.body, pageVars);
-		Paragraph para = new Paragraph(mergedText, bodyFont);
+		String bodyText = removeUnmatchedOverledenenFrom(mergedText);
+		Paragraph para = new Paragraph(bodyText, bodyFont);
 		para.setAlignment(Element.ALIGN_LEFT);
 		document.add(para);
 		
 		document.add(Chunk.NEXTPAGE);
+	}
+	
+	private String removeUnmatchedOverledenenFrom(String text) throws IOException
+	{
+		String result = "";
+		BufferedReader reader = new BufferedReader(new StringReader(text));
+		String line = reader.readLine();
+		while (line!=null)
+		{
+			if (line.indexOf("OVERL")<0)
+				result += line+"\n";
+			line = reader.readLine();
+		}
+		return result;
 	}
 	
 	private String merge(String text, PageVars pageVars)
