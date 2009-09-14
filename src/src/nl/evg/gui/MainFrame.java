@@ -18,8 +18,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -31,20 +29,17 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
-
+import nl.evg.business.PageCreator;
 import nl.evg.business.PageTemplate;
 import nl.evg.business.PageVars;
-import nl.evg.business.PageCreator;
 import nl.evg.business.PdfDoc;
-
-import com.lowagie.text.DocumentException;
 
 public class MainFrame extends JFrame
 {
@@ -90,7 +85,7 @@ public class MainFrame extends JFrame
 		JPanel saveLoadPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		
 		JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		titlePanel.add(titleField = new JTextField());
+		titlePanel.add(titleField = new JTextField(50));
 		fill(titleField,"title.txt");
 		leftHeaderTextArea = new JTextArea();
 		rightHeaderTextArea = new JTextArea();
@@ -118,14 +113,21 @@ public class MainFrame extends JFrame
 				}
 				catch(UnsupportedEncodingException uee)
 				{
-					//TODO inform user
+					JOptionPane.showMessageDialog(null, uee.getMessage());
 				}
 			}
 		});
 		loadButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e)
 			{
-				loadLetterDefinition();
+				try
+				{
+					loadLetterDefinition();
+				}
+				catch(IOException ioe)
+				{
+					JOptionPane.showMessageDialog(null, ioe.getMessage());
+				}
 			}
 		});
 		saveLoadPanel.add(saveButton);
@@ -146,6 +148,7 @@ public class MainFrame extends JFrame
 	{
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		PrintWriter writer = new PrintWriter(new OutputStreamWriter(stream, "UTF8"));
+		writer.println(SEPARATOR);
 		writer.println(titleField.getText());
 		writer.println(SEPARATOR);
 		writer.println(leftHeaderTextArea.getText());
@@ -160,9 +163,41 @@ public class MainFrame extends JFrame
 	
 	private static final String SEPARATOR = "~ ~ ~";
 	
-	private void loadLetterDefinition()
+	private void loadLetterDefinition() throws IOException
 	{
-//		TODO load
+//		TODO fault handling loadLetter
+		BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStreamForUserSelectedFile(), "UTF8"));
+		String firstLine = reader.readLine();
+		if (firstLine==null || firstLine!=SEPARATOR)
+			throw new IOException("Bestand bevat geen Lambertus briefdefinitie");
+		String title = reader.readLine();
+		String leftHeader = "";
+		String rightHeader = "";
+		String body = "";
+		reader.readLine();// skip separt
+		String line = reader.readLine();
+		while (line!=null && !line.equals(SEPARATOR))
+		{
+			leftHeader += line+"\n";
+			line = reader.readLine();
+		}
+		line = reader.readLine();
+		while (line!=null && !line.equals(SEPARATOR))
+		{
+			rightHeader += line+"\n";
+			line = reader.readLine();
+		}
+		line = reader.readLine();
+		while (line!=null && !line.equals(SEPARATOR))
+		{
+			body += line+"\n";
+			line = reader.readLine();
+		}
+		titleField.setText(title);
+		leftHeaderTextArea.setText(leftHeader);
+		rightHeaderTextArea.setText(rightHeader);
+		bodyTextArea.setText(body);
+		reader.close();
 	}
 	
 	private void fill(JTextArea textArea, String file) throws IOException
@@ -240,7 +275,7 @@ public class MainFrame extends JFrame
 
 			public void actionPerformed(ActionEvent arg0)
 			{
-				excelInputStream = openExcel();
+				excelInputStream = getInputStreamForUserSelectedFile();
 			}
 
 		});
@@ -249,7 +284,7 @@ public class MainFrame extends JFrame
 		return result;
 	}
 
-	private InputStream openExcel()
+	private InputStream getInputStreamForUserSelectedFile()
 	{
 		try
 		{
@@ -287,7 +322,7 @@ public class MainFrame extends JFrame
 				showWaitCursor();
 				merge();
 			} 
-			catch (DocumentException e)
+			catch (Exception e)
 			{
 				e.printStackTrace();
 			}
@@ -301,7 +336,7 @@ public class MainFrame extends JFrame
 		return result;
 	}
 	
-	private void merge() throws DocumentException
+	private void merge() throws Exception
 	{
 		PageTemplate pageTemplate = new PageTemplate();
 		pageTemplate.title = titleField.getText();
