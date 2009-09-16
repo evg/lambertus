@@ -390,7 +390,14 @@ public class MainFrame extends JFrame
 
 			public void actionPerformed(ActionEvent arg0)
 			{
-				save("lambertus.pdf",pdfDoc.asBytes());
+				try
+				{
+					save("lambertus.pdf",pdfDoc.asBytes());
+				}
+				catch(Exception e)
+				{
+					log(e);
+				}
 			}
 
 		});
