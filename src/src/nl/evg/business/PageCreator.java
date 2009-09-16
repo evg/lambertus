@@ -1,5 +1,6 @@
 package nl.evg.business;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -15,19 +16,19 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 public class PageCreator
 {
-	public List<PageVars> createPagesFrom(InputStream contentStream, String year)
+	public List<PageVars> createPagesFrom(InputStream contentStream, String year) throws IOException
 	{
 		List<PageVars> result = new ArrayList<PageVars>();
 		POIFSFileSystem fs = null;
 		HSSFWorkbook wb = null;
-		try
-		{
+//		try
+//		{
 			fs = new POIFSFileSystem(contentStream);
 			wb = new HSSFWorkbook(fs);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+//		}
+//		catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		HSSFSheet sheet = wb.getSheetAt(0);
 		HSSFRow row;
 		HSSFCell cell;

@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -71,6 +72,7 @@ public class MainFrame extends JFrame
 		mainPanel.add("Brief definitie",getLetterPanel());
 		mainPanel.add("Samenvoegen", getMergePanel());
 		mainPanel.add("Pdf bestand",getSavePanel());
+		mainPanel.add("Log",getLogPanel());
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
 		getContentPane().add(getWizardButtonsPanel(), BorderLayout.SOUTH);
 		pack();
@@ -227,6 +229,24 @@ public class MainFrame extends JFrame
 		reader.close();
 	}
 	
+	private JPanel getLogPanel()
+	{
+		JPanel result = new JPanel(new BorderLayout());
+		
+		logTextArea = new JTextArea();
+		
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JButton clearButton = new JButton("Clear");
+		buttonPanel.add(clearButton);
+		clearButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent arg0) 
+			{ logTextArea.setText("");};});
+
+		result.add(new JScrollPane(logTextArea), BorderLayout.CENTER);
+		result.add(buttonPanel, BorderLayout.SOUTH);
+		
+		return result;
+	}
+	
 	private JPanel getSelectYearPanel()
 	{
 		JPanel result = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -294,6 +314,7 @@ public class MainFrame extends JFrame
 		}
 		catch(Exception e)
 		{
+			log(e);
 			JFileChooser fileChooser = new JFileChooser();
 			fileChooser.showOpenDialog(this);
 			File file = fileChooser.getSelectedFile();
@@ -303,7 +324,7 @@ public class MainFrame extends JFrame
 			}
 			catch(FileNotFoundException fnfe)
 			{
-				fnfe.printStackTrace();
+				log(fnfe);
 			}
 		}
 		return null;
@@ -324,7 +345,7 @@ public class MainFrame extends JFrame
 			} 
 			catch (Exception e)
 			{
-				e.printStackTrace();
+				log(e);
 			}
 			finally
 			{
@@ -388,6 +409,7 @@ public class MainFrame extends JFrame
 		}
 		catch(Exception e)
 		{
+			log(e);
 			try
 			{
 				FileOutputStream fileOutputStream = new FileOutputStream("/home/edwin/"+defaultName);
@@ -396,9 +418,20 @@ public class MainFrame extends JFrame
 				fileOutputStream.close();
 			} catch (Exception e1)
 			{
-				e1.printStackTrace();
+				log(e1);
 			}
 		}
+	}
+	
+	private void log(Exception e)
+	{
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter writer = new PrintWriter(stringWriter);
+		e.printStackTrace(writer);
+		writer.flush();
+		writer.close();
+		logTextArea.append(stringWriter.toString());
+		logTextArea.append("\n\n");
 	}
 
 	private JTextField yearField;
@@ -406,6 +439,7 @@ public class MainFrame extends JFrame
 	private JTextArea leftHeaderTextArea;
 	private JTextArea rightHeaderTextArea;
 	private JTextArea bodyTextArea;
+	private JTextArea logTextArea;
 	private InputStream excelInputStream;
 	private JTabbedPane mainPanel;
 	private JButton prevButton;
