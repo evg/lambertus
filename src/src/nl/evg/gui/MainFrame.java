@@ -392,7 +392,9 @@ public class MainFrame extends JFrame
 			{
 				try
 				{
+					log("Before save call");
 					save("lambertus.pdf",pdfDoc.asBytes());
+					log("After save call");
 				}
 				catch(Exception e)
 				{
@@ -408,11 +410,16 @@ public class MainFrame extends JFrame
 	
 	private void save(String defaultName, byte[] bytes)
 	{
+		log("Entered save method");
 		InputStream stream = new ByteArrayInputStream(bytes);
+		log("nofbytes: "+bytes.length);
 		try
 		{
+			log("save method step 1");
 			FileSaveService saveService = (FileSaveService)ServiceManager.lookup("javax.jnlp.FileSaveService");
-			saveService.saveFileDialog("", new String[]{}, stream, "");
+			log("save method step 2");
+			saveService.saveFileDialog("c:\\temp", new String[]{ "pdf" }, stream, "lambertus");
+			log("save method step 3");
 		}
 		catch(Exception e)
 		{
@@ -428,6 +435,7 @@ public class MainFrame extends JFrame
 				log(e1);
 			}
 		}
+		log("Leaving save method");
 	}
 	
 	private void log(Exception e)
@@ -435,10 +443,22 @@ public class MainFrame extends JFrame
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter writer = new PrintWriter(stringWriter);
 		e.printStackTrace(writer);
+		writer.println();
 		writer.flush();
 		writer.close();
 		logTextArea.append(stringWriter.toString());
-		logTextArea.append("\n\n");
+	}
+	
+	//TODO refactor overloaded log methods
+	private void log(String text)
+	{
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter writer = new PrintWriter(stringWriter);
+		writer.println(text);
+		writer.println();
+		writer.flush();
+		writer.close();
+		logTextArea.append(stringWriter.toString());
 	}
 
 	private JTextField yearField;
