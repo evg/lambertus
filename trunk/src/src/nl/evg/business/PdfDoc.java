@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
@@ -79,16 +81,19 @@ public class PdfDoc
 	
 	private String removeUnmatchedOverledenenFrom(String text) throws IOException
 	{
-		String result = "";
+		StringWriter result = new StringWriter();
+		PrintWriter writer = new PrintWriter(result);
 		BufferedReader reader = new BufferedReader(new StringReader(text));
 		String line = reader.readLine();
 		while (line!=null)
 		{
 			if (line.indexOf("OVERL")<0)
-				result += line+"\n";
+				writer.println(line);
 			line = reader.readLine();
 		}
-		return result;
+		writer.flush();
+		writer.close();
+		return result.toString();
 	}
 	
 	private String merge(String text, PageVars pageVars)

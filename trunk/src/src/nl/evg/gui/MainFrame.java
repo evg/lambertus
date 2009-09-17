@@ -393,8 +393,7 @@ public class MainFrame extends JFrame
 				try
 				{
 					log("Before save call");
-//					save("lambertus.pdf",pdfDoc.asBytes());
-					save("test.pdf","Edwin".getBytes());
+					save("lambertus.pdf",pdfDoc.asBytes());
 					log("After save call");
 				}
 				catch(Exception e)
