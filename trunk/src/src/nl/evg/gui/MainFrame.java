@@ -170,13 +170,13 @@ public class MainFrame extends JFrame
 //		TODO fault handling loadLetter
 		BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStreamForUserSelectedFile(), "UTF8"));
 		String firstLine = reader.readLine();
-		if (firstLine==null || firstLine!=SEPARATOR)
+		if (firstLine==null || !firstLine.equals(SEPARATOR))
 			throw new IOException("Bestand bevat geen Lambertus briefdefinitie");
 		String title = reader.readLine();
 		String leftHeader = "";
 		String rightHeader = "";
 		String body = "";
-		reader.readLine();// skip separt
+		reader.readLine();// skip separator
 		String line = reader.readLine();
 		while (line!=null && !line.equals(SEPARATOR))
 		{
