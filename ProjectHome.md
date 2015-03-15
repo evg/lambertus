@@ -1,0 +1,1 @@
+Replace manual creation of letters by automatic creation.
